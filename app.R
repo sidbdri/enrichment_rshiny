@@ -1,5 +1,14 @@
 library(shiny)
 
+example_query<-c("1112_g_at", "1331_s_at", "1355_g_at", "1372_at", "1391_s_at", "1403_s_at", "1419_g_at", "1575_at", "1645_at", "1786_at", "1112_g_at", "1331_s_at", "1355_g_at", "1372_at")
+example_reference<-c("1112_g_at", "1331_s_at", "1355_g_at", "1372_at", "1391_s_at", "1403_s_at", "1419_g_at", "1575_at", "1645_at", "1786_at", "1112_g_at", "1331_s_at", "1355_g_at", "1372_at", "1391_s_at", "1403_s_at", "1419_g_at", "1575_at", "1645_at")
+example_background<-c("1112_g_at", "1331_s_at", "1355_g_at", "1372_at", "1391_s_at", "1403_s_at", "1419_g_at", "1575_at", "1645_at", "1786_at", "1112_g_at", "1331_s_at", "1355_g_at", "1372_at", "1391_s_at", "1403_s_at", "1419_g_at", "1575_at", "1645_at", "1786_at", "1112_g_at", "1331_s_at", "1355_g_at", "1372_at", "1391_s_at", "1403_s_at", "1419_g_at", "1575_at", "1645_at", "1786_at")
+
+example_query<-paste(example_query, collapse="\n")
+example_reference<-paste(example_reference, collapse="\n")
+example_background<-paste(example_background, collapse="\n")
+
+
 calculate_intersect<-function(x, y){
     i<-intersect(x, y)
     return(i)
@@ -36,12 +45,12 @@ contingency_table<-function(query, reference, background){
 u <- shinyUI(
     fluidPage(
         sidebarPanel(
-           textAreaInput('vec1', 'Query values (newline delimited)'),
-           textAreaInput('vec2', 'Target values (newline delimited)'),
-           textAreaInput('vec3', 'Reference values (newline delimited)'),
+            textAreaInput('vec1', 'Query values (newline delimited)'),
+            textAreaInput('vec2', 'Target values (newline delimited)'),
+            textAreaInput('vec3', 'Reference values (newline delimited)'),
             actionButton("run", "Run test"),
             actionButton("reset", "Reset"),
-           actionButton("example", "Example"),
+            actionButton("example", "Example"),
         ),
         
         mainPanel(
@@ -51,26 +60,26 @@ u <- shinyUI(
             p("Enter newline delimited values in the relevant boxes to the left"),
             h3('Test result:'),
             verbatimTextOutput("show_results")
-    
+            
         )
-))
+    ))
 
 s <- shinyServer(function(input, output, session) {
     
-   results<-eventReactive(input$run, {
-       
-       
-       query <- unlist(strsplit(input$vec1,"\n"))
-       ref <- unlist(strsplit(input$vec2,"\n"))
-       back<- unlist(strsplit(input$vec3,"\n"))
-       contingency<-contingency_table(query,ref,back)
-       result<-fisher_test(contingency)
-       
-       result<-paste(result, collapse="\n")
-       
-       cat(result)
-   })
+    results<-eventReactive(input$run, {
         
+        
+        query <- unlist(strsplit(input$vec1,"\n"))
+        ref <- unlist(strsplit(input$vec2,"\n"))
+        back<- unlist(strsplit(input$vec3,"\n"))
+        contingency<-contingency_table(query,ref,back)
+        result<-fisher_test(contingency)
+        
+        result<-paste(result, collapse="\n")
+        
+        cat(result)
+    })
+    
     output$show_results<-renderPrint({
         results()
     })
@@ -86,9 +95,13 @@ s <- shinyServer(function(input, output, session) {
     observeEvent(input$example, {
         output$show_results <- renderText({
         })
-        updateTextInput(session, "vec1", value="one")
-        updateTextInput(session, "vec2", value="two")
-        updateTextInput(session, "vec3", value="three")
+        updateTextInput(session, "vec1", value=example_query)
+        updateTextInput(session, "vec2", value=example_reference)
+        updateTextInput(session, "vec3", value=example_background)
+        output$show_results<-renderPrint({
+            results()
+        })
+        
     })
 }
 )
