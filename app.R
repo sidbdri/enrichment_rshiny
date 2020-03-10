@@ -38,7 +38,7 @@ u <- shinyUI(
         sidebarPanel(
            textAreaInput('vec1', 'Query values (newline delimited)'),
            textAreaInput('vec2', 'Target values (newline delimited)'),
-           textAreaInput('vec3', 'Reference values (newline delimited)'),
+           textAreaInput('vec3', 'Background values (newline delimited)'),
             actionButton("run", "Run test"),
             actionButton("reset", "Reset"),
            actionButton("example", "Example"),
