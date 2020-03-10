@@ -1,3 +1,10 @@
+
+scan_in<-function(filename){
+  test_data<-scan(filename, what=character())
+  test_data<-paste(test_data, collapse="\n")
+  return(test_data)
+}
+
 calculate_intersect<-function(x, y){
   i<-intersect(x, y)
   return(i)

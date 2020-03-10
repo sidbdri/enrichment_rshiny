@@ -1,9 +1,10 @@
 library(shiny)
 source("functions.R")
 
-example_query<-read.delim("example_query")
-example_reference<-read.delim("example_reference")
-example_background<-read.delim("example_background")
+example_query<-scan_in("example_query")
+example_reference<-scan_in("example_reference")
+example_background<-scan_in("example_background")
+
 
 u <- shinyUI(
     fluidPage(
@@ -15,7 +16,6 @@ u <- shinyUI(
             actionButton("reset", "Reset"),
             actionButton("example", "Example"),
         ),
-        
         mainPanel(
             h3('Fisher test for enrichment'),
             br(),
@@ -28,18 +28,13 @@ u <- shinyUI(
     ))
 
 s <- shinyServer(function(input, output, session) {
-    
     results<-eventReactive(input$run, {
-        
-        
         query <- unlist(strsplit(input$vec1,"\n"))
         ref <- unlist(strsplit(input$vec2,"\n"))
         back<- unlist(strsplit(input$vec3,"\n"))
         contingency<-contingency_table(query,ref,back)
         result<-fisher_test(contingency)
-        
         result<-paste(result, collapse="\n")
-        
         cat(result)
     })
     
@@ -68,7 +63,5 @@ s <- shinyServer(function(input, output, session) {
     })
 }
 )
-
-
 
 shinyApp(ui = u, server = s)
