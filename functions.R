@@ -5,13 +5,23 @@ scan_in<-function(filename){
   return(test_data)
 }
 
+check_table<-function(input_table){
+  ifall(m < 0)
+}
+
 calculate_intersect<-function(x, y){
   i<-intersect(x, y)
   return(i)
 }
 
 fisher_test<-function(contingency_tbl){
-  test_result<-fisher.test(contingency_tbl)
+  # check that the contingency table does not contain negative values
+  # if none, return result, if negative values, return error message
+  if (all(contingency_tbl < 0)) {
+    test_result<-fisher.test(contingency_tbl)
+  } else {
+    test_result<-"There are negative values in your contingency table. \nHave you entered your input lists correctly?"
+  }
   return(test_result)
 }
 
@@ -35,5 +45,6 @@ contingency_table<-function(query, reference, background){
   
   # make a contingency table of calculated values
   contingency_table<-matrix(c(intersect_query_ref, intersect_query_back, intersect_ref_back, background_only), nrow=2)
+
   return(contingency_table)
 }

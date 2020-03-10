@@ -5,7 +5,6 @@ example_query<-scan_in("example_query")
 example_reference<-scan_in("example_reference")
 example_background<-scan_in("example_background")
 
-
 u <- shinyUI(
     fluidPage(
         sidebarPanel(
