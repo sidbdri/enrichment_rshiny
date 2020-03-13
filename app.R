@@ -1,4 +1,5 @@
 library(shiny)
+library(VennDiagram)
 source("functions.R")
 
 example_query<-scan_in("example_query")
@@ -21,8 +22,10 @@ u <- shinyUI(
             p("Test for enrichment of one list in another list, given a third, background list"),
             p("Enter newline delimited values in the relevant boxes to the left"),
             h3('Test result:'),
-            verbatimTextOutput("show_results")
-            
+            verbatimTextOutput("show_results"),
+            br(),
+            #tableOutput('overlap_table')
+            imageOutput("venn_diagram")
         )
     ))
 
@@ -32,14 +35,33 @@ s <- shinyServer(function(input, output, session) {
         ref <- unlist(strsplit(input$vec2,"\n"))
         back<- unlist(strsplit(input$vec3,"\n"))
         contingency<-contingency_table(query,ref,back)
+        print(contingency)
         result<-fisher_test(contingency)
         result<-paste(result, collapse="\n")
         cat(result)
     })
     
+    venn<-eventReactive(input$run, {
+        outfile <- tempfile(fileext='.png')
+        png(outfile, width=400, height=300)
+        draw_venn(input$vec1, input$vec2, input$vec3)
+        
+        dev.off()
+        list(src = outfile,
+             contentType = 'image/png',
+             width = 400,
+             height = 300,
+             alt = "This is alternate text")
+    })
+    
     output$show_results<-renderPrint({
         results()
     })
+    
+    output$venn_diagram <- renderImage({
+        venn()
+    })
+    
     
     observeEvent(input$reset, {
         output$show_results <- renderText({
@@ -47,6 +69,7 @@ s <- shinyServer(function(input, output, session) {
         updateTextInput(session, "vec1", value="")
         updateTextInput(session, "vec2", value="")
         updateTextInput(session, "vec3", value="")
+        output$venn_diagram <- NULL
     })
     
     observeEvent(input$example, {
@@ -58,9 +81,10 @@ s <- shinyServer(function(input, output, session) {
         output$show_results<-renderPrint({
             results()
         })
-        
     })
+    
 }
 )
+
 
 shinyApp(ui = u, server = s)

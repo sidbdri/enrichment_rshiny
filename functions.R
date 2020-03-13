@@ -1,4 +1,21 @@
 
+
+
+draw_venn<-function(one, two, three){
+    one<-unlist(str_split(one, "\n"))
+    two<-unlist(str_split(two, "\n"))
+    three<-unlist(str_split(three, "\n"))
+    overlap12 <- length(calculate.overlap(x=list(one, two))$a3)
+    overlap13 <- length(calculate.overlap(x=list(one, three))$a3)
+    overlap23 <- length(calculate.overlap(x=list(two, three))$a3)
+    overlap123 <- length(calculate.overlap(x=list(one, two, three))$a5)
+    one<-length(one)
+    two<-length(two)
+    three<-length(three)
+    venn<-draw.triple.venn(one, two, three, overlap12, overlap23, overlap13, overlap123, col = c("lightpink", "lightblue", "lightgreen"), fill = c("lightpink", "lightblue", "lightgreen"))
+    return(venn)
+}
+
 scan_in<-function(filename){
   test_data<-scan(filename, what=character())
   test_data<-paste(test_data, collapse="\n")
@@ -15,9 +32,9 @@ calculate_intersect<-function(x, y){
 }
 
 fisher_test<-function(contingency_tbl){
-  # check that the contingency table does not contain negative values
-  # if none, return result, if negative values, return error message
-  if (all(contingency_tbl < 0)) {
+  #check that the contingency table does not contain negative values
+  #if none, return result, if negative values, return error message
+  if (all(contingency_tbl >= 0)) {
     test_result<-fisher.test(contingency_tbl)
   } else {
     test_result<-"There are negative values in your contingency table. \nHave you entered your input lists correctly?"
