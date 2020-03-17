@@ -22,10 +22,6 @@ scan_in<-function(filename){
   return(test_data)
 }
 
-check_table<-function(input_table){
-  ifall(m < 0)
-}
-
 calculate_intersect<-function(x, y){
   i<-intersect(x, y)
   return(i)
@@ -43,6 +39,11 @@ fisher_test<-function(contingency_tbl){
 }
 
 contingency_table<-function(query, reference, background){
+  
+  # restrict query and references to values also present in background list
+  query <- query[query %in% background]
+  reference <- reference[reference %in% background]
+  
   #lengths of each list
   qlength<-length(query)
   rlength<-length(reference)
