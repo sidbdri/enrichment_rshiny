@@ -14,7 +14,7 @@ u <- shinyUI(
             textAreaInput('vec3', 'Background values (newline delimited)'),
             actionButton("run", "Run test"),
             actionButton("reset", "Reset"),
-            actionButton("example", "Example"),
+            actionButton("example", "Example")
         ),
         mainPanel(
             h3('Fisher test for enrichment'),
@@ -44,8 +44,8 @@ s <- shinyServer(function(input, output, session) {
     venn<-eventReactive(input$run, {
         outfile <- tempfile(fileext='.png')
         png(outfile, width=400, height=300)
+        par(mfrow=c(1,2))
         draw_venn(input$vec1, input$vec2, input$vec3)
-        
         dev.off()
         list(src = outfile,
              contentType = 'image/png',
