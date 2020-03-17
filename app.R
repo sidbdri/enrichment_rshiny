@@ -51,7 +51,7 @@ s <- shinyServer(function(input, output, session) {
              contentType = 'image/png',
              width = 400,
              height = 300,
-             alt = "This is alternate text")
+             alt = "")
     })
     
     output$show_results<-renderPrint({
@@ -63,13 +63,16 @@ s <- shinyServer(function(input, output, session) {
     })
     
     
+    
     observeEvent(input$reset, {
         output$show_results <- renderText({
         })
         updateTextInput(session, "vec1", value="")
         updateTextInput(session, "vec2", value="")
         updateTextInput(session, "vec3", value="")
-        output$venn_diagram <- NULL
+        output$venn_diagram <- plot.new()
+        dev.off()
+            
     })
     
     observeEvent(input$example, {
@@ -80,6 +83,9 @@ s <- shinyServer(function(input, output, session) {
         updateTextInput(session, "vec3", value=example_background)
         output$show_results<-renderPrint({
             results()
+        })
+        output$venn_diagram <- renderImage({
+            venn()
         })
     })
     
