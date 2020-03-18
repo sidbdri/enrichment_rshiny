@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyjs)
 library(VennDiagram)
 source("functions.R")
 
@@ -8,6 +9,7 @@ example_background<-scan_in("example_background")
 
 u <- shinyUI(
     fluidPage(
+        useShinyjs(),
         sidebarPanel(
             textAreaInput('vec1', 'Query values (newline delimited)'),
             textAreaInput('vec2', 'Target values (newline delimited)'),
@@ -24,7 +26,6 @@ u <- shinyUI(
             h3('Test result:'),
             verbatimTextOutput("show_results"),
             br(),
-            #tableOutput('overlap_table')
             imageOutput("venn_diagram")
         )
     ))
@@ -41,6 +42,7 @@ s <- shinyServer(function(input, output, session) {
         cat(result)
     })
     
+    # set up venn diagram
     venn<-eventReactive(input$run, {
         outfile <- tempfile(fileext='.png')
         png(outfile, width=400, height=300)
@@ -53,17 +55,18 @@ s <- shinyServer(function(input, output, session) {
              height = 300,
              alt = "")
     })
-    
-    output$show_results<-renderPrint({
-        results()
+
+    # shownresults and venn diagram on clicking run
+    observeEvent(input$run, {
+        output$show_results<-renderPrint({
+            results()
+        })
+        output$venn_diagram <- renderImage({
+            venn()
+        })
     })
     
-    output$venn_diagram <- renderImage({
-        venn()
-    })
-    
-    
-    
+    # render empty text and plot blank on clicking reset
     observeEvent(input$reset, {
         output$show_results <- renderText({
         })
@@ -75,18 +78,13 @@ s <- shinyServer(function(input, output, session) {
             
     })
     
+    # fill in inputs with example data on clicking example
     observeEvent(input$example, {
         output$show_results <- renderText({
         })
         updateTextInput(session, "vec1", value=example_query)
         updateTextInput(session, "vec2", value=example_reference)
         updateTextInput(session, "vec3", value=example_background)
-        output$show_results<-renderPrint({
-            results()
-        })
-        output$venn_diagram <- renderImage({
-            venn()
-        })
     })
     
 }
