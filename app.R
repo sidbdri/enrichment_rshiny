@@ -17,7 +17,8 @@ u <- shinyUI(
             actionButton("run", "Run test"),
             actionButton("reset", "Reset"),
             actionButton("example", "Example")
-        ),
+        )
+        
         mainPanel(
             h3('Fisher test for enrichment'),
             br(),
