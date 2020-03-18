@@ -1,6 +1,7 @@
 library(shiny)
 library(shinyjs)
 library(VennDiagram)
+library(stringr)
 source("functions.R")
 
 example_query<-scan_in("example_query")
