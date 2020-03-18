@@ -1,5 +1,4 @@
 library(shiny)
-library(shinyjs)
 library(VennDiagram)
 library(stringr)
 source("functions.R")
@@ -10,7 +9,6 @@ example_background<-scan_in("example_background")
 
 u <- shinyUI(
     fluidPage(
-        useShinyjs(),
         sidebarPanel(
             textAreaInput('vec1', 'Query values (newline delimited)'),
             textAreaInput('vec2', 'Target values (newline delimited)'),
