@@ -8,9 +8,6 @@ source("functions.R")
 example_query<-scan_in("example_query")
 example_reference<-scan_in("example_reference")
 example_background<-scan_in("example_background")
-query <- unlist(strsplit(input$vec1,"\n"))
-ref <- unlist(strsplit(input$vec2,"\n"))
-back<- unlist(strsplit(input$vec3,"\n"))
 
 
 

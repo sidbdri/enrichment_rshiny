@@ -1,6 +1,31 @@
 
 
 
+
+
+######################
+
+# Run this piece of code to show the plot that *should* render when using euler() below
+# numbers reflect the numbers produced using the example dataset
+# plot code only differs in using "one" rather than "length(one)" as in the draw_venn function below, for simplicity of setup
+
+one<-11
+two<-31
+three<-41
+overlap12<-11
+overlap13<-11
+overlap23<-21
+overlap123<-11
+
+venn<-euler(c(one = one, two = two, three = three,
+           "one&two" = overlap12, "one&three" = overlap13, "two&three" = overlap23,
+           "one&two&three" = overlap123), input = "union")
+plot(venn)
+
+######################
+
+
+
 draw_venn<-function(one, two, three){
     one<-unlist(str_split(one, "\n"))
     two<-unlist(str_split(two, "\n"))
@@ -12,7 +37,17 @@ draw_venn<-function(one, two, three){
     overlap13 <- length(calculate.overlap(x=list(one, three))$a3)
     overlap23 <- length(calculate.overlap(x=list(two, three))$a3)
     overlap123 <- length(calculate.overlap(x=list(one, two, three))$a5)
+    
+    
+    # BUG: switch between two calls to create venn diagram, bottom one works, top one does not
+    
+    #venn<-euler(c(one = length(one), two = length(two), three = length(three),
+    #           "one&two" = overlap12, "one&three" = overlap13, "two&three" = overlap23,
+    #           "one&two&three" = overlap123), input = "union")
+    
     venn<-draw.triple.venn(length(one), length(two), length(three), overlap12, overlap23, overlap13, overlap123, col = c("lightpink", "lightblue", "lightgreen"), fill = c("lightpink", "lightblue", "lightgreen"))
+    
+    
     return(venn)
 }
 
