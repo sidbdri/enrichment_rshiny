@@ -1,26 +1,22 @@
 library(shiny)
 library(VennDiagram)
 library(stringr)
-library(eulerr)
 source("functions.R")
-
 
 example_query<-scan_in("example_query")
 example_reference<-scan_in("example_reference")
 example_background<-scan_in("example_background")
 
-
-
 u <- shinyUI(
     fluidPage(
         sidebarPanel(
             textAreaInput('vec1', 'Query values (newline delimited)'),
-            textAreaInput('vec2', 'Target values (newline delimited)'),
+            textAreaInput('vec2', 'Reference values (newline delimited)'),
             textAreaInput('vec3', 'Background values (newline delimited)'),
             actionButton("run", "Run test"),
             actionButton("reset", "Reset"),
             actionButton("example", "Example")
-        )
+        ),
         
         mainPanel(
             h3('Fisher test for enrichment'),
@@ -35,22 +31,25 @@ u <- shinyUI(
     ))
 
 s <- shinyServer(function(input, output, session) {
+    # print contigency table and results
     results<-eventReactive(input$run, {
         query <- unlist(strsplit(input$vec1,"\n"))
         ref <- unlist(strsplit(input$vec2,"\n"))
         back<- unlist(strsplit(input$vec3,"\n"))
         contingency<-contingency_table(query,ref,back)
+        fisher<-fisher_test(contingency)
+        results<-print_results(fisher)
+        cat("Contingency table: \n\n")
         print(contingency)
-        result<-fisher_test(contingency)
-        result<-paste(result, collapse="\n")
-        cat(result)
+        cat("\n")
+        cat("Results: \n\n")
+        cat(results)
     })
     
     # set up venn diagram
     venn<-eventReactive(input$run, {
         outfile <- tempfile(fileext='.png')
         png(outfile, width=400, height=300)
-        par(mfrow=c(1,2))
         draw_venn(input$vec1, input$vec2, input$vec3)
         dev.off()
         list(src = outfile,
@@ -93,6 +92,5 @@ s <- shinyServer(function(input, output, session) {
     
 }
 )
-
 
 shinyApp(ui = u, server = s)

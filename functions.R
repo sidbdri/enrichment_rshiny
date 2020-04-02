@@ -1,51 +1,16 @@
 
-
-
-
-
-######################
-
-# Run this piece of code to show the plot that *should* render when using euler() below
-# numbers reflect the numbers produced using the example dataset
-# plot code only differs in using "one" rather than "length(one)" as in the draw_venn function below, for simplicity of setup
-
-one<-11
-two<-31
-three<-41
-overlap12<-11
-overlap13<-11
-overlap23<-21
-overlap123<-11
-
-venn<-euler(c(one = one, two = two, three = three,
-           "one&two" = overlap12, "one&three" = overlap13, "two&three" = overlap23,
-           "one&two&three" = overlap123), input = "union")
-plot(venn)
-
-######################
-
-
-
-draw_venn<-function(one, two, three){
-    one<-unlist(str_split(one, "\n"))
-    two<-unlist(str_split(two, "\n"))
-    three<-unlist(str_split(three, "\n"))
-    one<-one[one != ""]
-    two<-two[two != ""]
-    three<-three[three != ""]
-    overlap12 <- length(calculate.overlap(x=list(one, two))$a3)
-    overlap13 <- length(calculate.overlap(x=list(one, three))$a3)
-    overlap23 <- length(calculate.overlap(x=list(two, three))$a3)
-    overlap123 <- length(calculate.overlap(x=list(one, two, three))$a5)
-    
-    
-    # BUG: switch between two calls to create venn diagram, bottom one works, top one does not
-    
-    #venn<-euler(c(one = length(one), two = length(two), three = length(three),
-    #           "one&two" = overlap12, "one&three" = overlap13, "two&three" = overlap23,
-    #           "one&two&three" = overlap123), input = "union")
-    
-    venn<-draw.triple.venn(length(one), length(two), length(three), overlap12, overlap23, overlap13, overlap123, col = c("lightpink", "lightblue", "lightgreen"), fill = c("lightpink", "lightblue", "lightgreen"))
+draw_venn<-function(query, ref, back){
+    query<-unlist(str_split(query, "\n"))
+    ref<-unlist(str_split(ref, "\n"))
+    back<-unlist(str_split(back, "\n"))
+    query<-query[query != ""]
+    ref<-ref[ref != ""]
+    back<-back[back != ""]
+    overlap12 <- length(calculate.overlap(x=list(query, ref))$a3)
+    overlap13 <- length(calculate.overlap(x=list(query, back))$a3)
+    overlap23 <- length(calculate.overlap(x=list(ref, back))$a3)
+    overlap123 <- length(calculate.overlap(x=list(query, ref, back))$a5)
+    venn<-draw.triple.venn(length(query), length(ref), length(back), overlap12, overlap23, overlap13, overlap123, col = c("lightpink", "lightblue", "lightgreen"), fill = c("lightpink", "lightblue", "lightgreen"), category=c("Query", "Reference", "Background"))
     
     
     return(venn)
@@ -68,11 +33,27 @@ fisher_test<-function(contingency_tbl){
   if (all(contingency_tbl >= 0)) {
     test_result<-fisher.test(contingency_tbl)
   } else {
-    test_result<-"There are negative values in your contingency table. \nHave you entered your input lists correctly?"
+    test_result<-NULL
+      #
   }
   return(test_result)
 }
 
+print_results<-function(r){
+  # fisher test function returns NULL if negative vaklues present in contigency table
+  # check first if parameter passed in is fisher test result or NULL, otherwise extract relevant values
+  if (!is.null(r)){
+    ci_lower<-r$conf.int[1]
+    ci_upper<-r$conf.int[2]
+    ci<-paste(ci_lower, ci_upper, sep=", ")
+    p<-r$p.value
+    e<-r$estimate
+    results<-paste("confidence interval: ", ci, "\n", "odds ratio: ", e, "\n", "pvalue: ", p, "\n")
+  } else {
+    results<-"There are negative values in the contingency table. Did you enter the lists in the correct order?"
+  }
+  return(results)
+}
 contingency_table<-function(query, reference, background){
   
   # restrict query and references to values also present in background list
@@ -99,5 +80,7 @@ contingency_table<-function(query, reference, background){
   # make a contingency table of calculated values
   contingency_table<-matrix(c(intersect_query_ref, intersect_query_back, intersect_ref_back, background_only), nrow=2)
 
+  rownames(contingency_table)<-c("in.query", "not.in.query")
+  colnames(contingency_table)<-c("in.ref", "not.in.ref")
   return(contingency_table)
 }
